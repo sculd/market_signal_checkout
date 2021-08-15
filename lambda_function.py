@@ -12,7 +12,9 @@ _SUBSCRIPTION_PAGE_URL = os.getenv('SUBSCRIPTION_PAGE_URL')
 _EVENT_KEY_PATH_PARAMETER = 'pathParameters'
 _EVENT_KEY_QUERY_STRING_PARAMETER = 'queryStringParameters'
 _EVENT_KEY_HTTP_METHOD = 'httpMethod'
-_PARAM_KEY_PRICE_ID = 'price_id'
+_PARAM_KEY_PRICE_TYPE = 'price_type'
+_PRICE_TYPE_LIGHT = 'light'
+_PRICE_TYPE_PREMIUM = 'premium'
 
 
 _RESPONSE_303 = {
@@ -92,10 +94,19 @@ def lambda_handler(event, context):
         print('returning 400 as the method {m} is not POST.'.format(m = http_method))
         return _RESPONSE_400
 
-    price_id = None
+    price_type = None
     if query_string_parameters:
-        if _PARAM_KEY_PRICE_ID in query_string_parameters:
-            price_id = query_string_parameters[_PARAM_KEY_PRICE_ID]
+        if _PARAM_KEY_PRICE_TYPE in query_string_parameters:
+            price_type = query_string_parameters[_PARAM_KEY_PRICE_TYPE]
+
+    if price_type is None:
+        print('returning 400 as the method price type is not provided.')
+        return _RESPONSE_400
+
+    if price_type == _PRICE_TYPE_LIGHT:
+        price_id = _PRICE_ID_LIGHT
+    elif price_type == _PRICE_TYPE_PREMIUM:
+        price_id = _PRICE_ID_PREMIUM
 
     redirect_url = create_checkout_session(price_id)
     if not redirect_url:
