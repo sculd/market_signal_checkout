@@ -35,14 +35,15 @@ _RESPONSE_400 = {
         }
     }
 
-_RESPONSE_404 = {
-        'statusCode': 404,
+_RESPONSE_403 = {
+        'statusCode': 403,
         'headers': {
             'Access-Control-Allow-Headers': 'Content-Type',
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
         }
     }
+
 
 _RESPONSE_500 = {
         'statusCode': 500,
