@@ -123,4 +123,5 @@ def lambda_handler(event, context):
 
     ret = _RESPONSE_303
     ret['headers']['Location'] = redirect_url
+    ret['headers']['Access-Control-Allow-Origin'] = '*'
     return ret
