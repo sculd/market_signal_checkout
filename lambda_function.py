@@ -7,11 +7,11 @@ stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
 _PRICE_ID_LIGHT = os.getenv('STRIPE_PRICE_ID_LIGHT')
 _PRICE_ID_PREMIUM = os.getenv('STRIPE_PRICE_ID_PREMIUM')
-_SUBSCRIPTION_PAGE_URL = os.getenv('SUBSCRIPTION_PAGE_URL')
 
 _EVENT_KEY_PATH_PARAMETER = 'pathParameters'
 _EVENT_KEY_QUERY_STRING_PARAMETER = 'queryStringParameters'
 _EVENT_KEY_HTTP_METHOD = 'httpMethod'
+_CALLBACK_URL = 'callback_url'
 _PARAM_KEY_PRICE_TYPE = 'price_type'
 _PRICE_TYPE_LIGHT = 'light'
 _PRICE_TYPE_PREMIUM = 'premium'
@@ -55,7 +55,7 @@ _RESPONSE_500 = {
     }
 
 
-def create_checkout_session(price_id):
+def create_checkout_session(price_id, callback_url):
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=[
@@ -68,8 +68,8 @@ def create_checkout_session(price_id):
                 },
             ],
             mode='subscription',
-            success_url=_SUBSCRIPTION_PAGE_URL + '?success=true',
-            cancel_url=_SUBSCRIPTION_PAGE_URL + '?canceled=true',
+            success_url=callback_url + '?success=true',
+            cancel_url=callback_url + '?canceled=true',
         )
         return checkout_session.url
     except Exception as ex:
@@ -99,7 +99,6 @@ def lambda_handler(event, context):
     if query_string_parameters:
         if _PARAM_KEY_PRICE_TYPE in query_string_parameters:
             price_type = query_string_parameters[_PARAM_KEY_PRICE_TYPE]
-
     if price_type is None:
         print('returning 400 as the method price type is not provided.')
         return _RESPONSE_400
@@ -109,7 +108,15 @@ def lambda_handler(event, context):
     elif price_type == _PRICE_TYPE_PREMIUM:
         price_id = _PRICE_ID_PREMIUM
 
-    redirect_url = create_checkout_session(price_id)
+    callback_url = None
+    if query_string_parameters:
+        if _CALLBACK_URL in query_string_parameters:
+            callback_url = query_string_parameters[_PARAM_KEY_PRICE_TYPE]
+    if callback_url is None:
+        print('returning 400 as the method callback url is not provided.')
+        return _RESPONSE_400
+
+    redirect_url = create_checkout_session(price_id, callback_url)
     if not redirect_url:
         print('could not retrieve the redirect url.')
         return _RESPONSE_500
