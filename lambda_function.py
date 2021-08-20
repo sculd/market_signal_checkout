@@ -111,7 +111,7 @@ def lambda_handler(event, context):
     callback_url = None
     if query_string_parameters:
         if _CALLBACK_URL in query_string_parameters:
-            callback_url = query_string_parameters[_PARAM_KEY_PRICE_TYPE]
+            callback_url = query_string_parameters[_CALLBACK_URL]
     if callback_url is None:
         print('returning 400 as the method callback url is not provided.')
         return _RESPONSE_400
