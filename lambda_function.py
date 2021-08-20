@@ -124,4 +124,14 @@ def lambda_handler(event, context):
     ret = _RESPONSE_303
     ret['headers']['Location'] = redirect_url
     ret['headers']['Access-Control-Allow-Origin'] = '*'
-    return ret
+    #return ret
+
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+        },
+        'url': json.dumps(redirect_url)
+    }
